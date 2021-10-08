@@ -31,6 +31,26 @@ class ToitUnauthenticatedException implements Exception {
   const ToitUnauthenticatedException();
 }
 
+/// A gateway to the Toit API.
+///
+/// The Toit API is accessible through grpc requests. Most services are only
+/// accessible when authorized. This class takes care of adding the
+/// authorization token to each request.
+///
+/// There are two ways to become authenticated:
+/// 1. with an API token, or
+/// 2. through a login with username, password.
+///
+/// API tokens can be created on https://console.toit.io/project/apikeys or
+/// with
+///  ```
+/// toit project api-keys add <name>  # Prints an ID.
+/// toit project api-keys print-secret <id>
+/// ```
+///
+/// The stubs come from the toit_api package. See
+/// https://github.com/toitware/api/tree/master/proto/toit/api for the
+/// protobuf files that define the services.
 class ToitApi {
   final ClientChannel _channel;
   CallOptions? _options;
@@ -39,6 +59,8 @@ class ToitApi {
     if (token == "") {
       throw ArgumentError("AuthorizationToken can't be the empty string \"\"");
     }
+    // Requests to the grpc end points of the Toit server must (usually) be
+    // authenticated. This is done with the `Authorization` metadata.
     return CallOptions(metadata: {'Authorization': 'Bearer $token'});
   }
 
@@ -55,7 +77,13 @@ class ToitApi {
 
   AppServiceClient get appServiceStub =>
       AppServiceClient(_channel, options: _ensureOptions());
-  AuthClient get authStub => AuthClient(_channel, options: _ensureOptions());
+
+  /// Returns the authorization stub to access the AuthService.
+  ///
+  /// The login request of this service does not need to be authorized.
+  /// This getter can thus be accessed without having authenticated first.
+  AuthClient get authStub => AuthClient(_channel, options: _options);
+
   DataServiceClient get dataServiceStub =>
       DataServiceClient(_channel, options: _ensureOptions());
   DeviceServiceClient get deviceServiceStub =>
@@ -78,6 +106,7 @@ class ToitApi {
       SubscribeClient(_channel, options: _ensureOptions());
   UserClient get userStub => UserClient(_channel, options: _ensureOptions());
 
+  /// Authenticates with the Toit servers with the given username and password.
   Future<void> login(String username, String password) async {
     _options = null;
     var request = LoginRequest(username: username, password: password);

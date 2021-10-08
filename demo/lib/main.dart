@@ -6,6 +6,12 @@ import 'package:flutter/material.dart';
 import 'src/devices_list.dart';
 import 'src/toit_api.dart';
 
+/// An API token created on https://console.toit.io/project/apikeys or
+/// with
+/// ```
+/// toit project api-keys add <name>  # Prints an ID.
+/// toit project api-keys print-secret <id>
+/// ```
 const API_TOKEN = "";
 
 void main() {

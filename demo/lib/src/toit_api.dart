@@ -31,7 +31,7 @@ class ToitUnauthenticatedException implements Exception {
   const ToitUnauthenticatedException();
 }
 
-/// A gateway to the Toit API.
+/// A facade of the Toit API.
 ///
 /// The Toit API is accessible through grpc requests. Most services are only
 /// accessible when authorized. This class takes care of adding the
@@ -43,7 +43,7 @@ class ToitUnauthenticatedException implements Exception {
 ///
 /// API tokens can be created on https://console.toit.io/project/apikeys or
 /// with
-///  ```
+/// ``` shell
 /// toit project api-keys add <name>  # Prints an ID.
 /// toit project api-keys print-secret <id>
 /// ```
@@ -107,7 +107,8 @@ class ToitApi {
   UserClient get userStub => UserClient(_channel, options: _ensureOptions());
 
   /// Authenticates with the Toit servers with the given username and password.
-  Future<void> login(String username, String password) async {
+  Future<void> login(
+      {required String username, required String password}) async {
     _options = null;
     var request = LoginRequest(username: username, password: password);
     var response = await authStub.login(request);

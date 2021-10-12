@@ -45,14 +45,9 @@ class DevicesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return ListView(
       padding: const EdgeInsets.all(8),
-      itemCount: _entries.length,
-      itemBuilder: (BuildContext context, int index) {
-        return Container(
-          child: Device(_entries[index]),
-        );
-      },
+      children: _entries.map((toitDevice) => Device(toitDevice)).toList(),
     );
   }
 }

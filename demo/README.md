@@ -18,5 +18,5 @@ flutter run
 
 For running the tests:
 ```
-flutter test 
+flutter test
 ```

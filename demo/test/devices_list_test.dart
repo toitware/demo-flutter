@@ -2,12 +2,14 @@
 // Use of this source code is governed by a Zero-Clause BSD license that can
 // be found in the LICENSE file.
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:toit_api/toit/api/device.pb.dart';
 import 'package:grpc/grpc.dart';
 
 import 'package:demo/main.dart';
 import 'package:demo/src/toit_api.dart';
+import 'package:demo/src/login.dart';
 import 'package:toit_api/toit/model/device.pb.dart';
 import 'fake_grpc.dart';
 
@@ -29,7 +31,6 @@ class FakeDeviceService extends UnimplementedDeviceService {
 
 void main() {
   group('Devices', () {
-    late ToitApi toitApi;
     late Server server;
 
     setUp(() async {
@@ -38,7 +39,7 @@ void main() {
           const ChannelOptions(credentials: ChannelCredentials.insecure());
       var channel =
           ClientChannel('localhost', port: server.port!, options: options);
-      toitApi = ToitApi.withChannel(channel);
+      toitApi_ = ToitApi.withChannel(channel);
     });
 
     tearDown(() {
@@ -47,7 +48,7 @@ void main() {
 
     testWidgets('Toit shows devices', (WidgetTester tester) async {
       await tester.runAsync(() async {
-        var app = MyApp(toitApi);
+        var app = ProviderScope(child: MyApp());
         // Build our app and trigger a frame.
         await tester.pumpWidget(app);
 

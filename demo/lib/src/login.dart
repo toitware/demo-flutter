@@ -20,6 +20,7 @@ class _LoginState extends ConsumerState<LoginPage> {
   bool _isAuthenticating = false;
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _prefs = SharedPreferences.getInstance();
 
   Future<void> _login() async {
     setState(() {
@@ -32,7 +33,7 @@ class _LoginState extends ConsumerState<LoginPage> {
       var password = _passwordController.value.text;
       await toitApi.login(username: username, password: password);
       // Successful login.
-      var prefs = await SharedPreferences.getInstance();
+      var prefs = await _prefs;
       await prefs.setString(_usernameKey, username);
       await prefs.setString(_passwordKey, password);
       ref.read(toitApiProvider).state = toitApi;
@@ -53,7 +54,7 @@ class _LoginState extends ConsumerState<LoginPage> {
   }
 
   Future<void> _loadSavedConfig() async {
-    var prefs = await SharedPreferences.getInstance();
+    var prefs = await _prefs;
     var username = prefs.getString(_usernameKey);
     var password = prefs.getString(_passwordKey);
     if (username != null) {

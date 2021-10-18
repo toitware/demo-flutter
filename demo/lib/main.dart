@@ -16,11 +16,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// ```
 const API_TOKEN = "";
 
-Future<void> main() async{
-  if (API_TOKEN != "") {
-    toitApi_ = ToitApi(token: API_TOKEN);
-  }
-  runApp(ProviderScope(child: MyApp()));
+Future<void> main() async {
+  var overrides = [
+    if (API_TOKEN != "")
+      toitApiProvider
+          .overrideWithValue(StateController(ToitApi(token: API_TOKEN)))
+  ];
+  runApp(ProviderScope(overrides: overrides, child: MyApp()));
 }
 
 class MyApp extends ConsumerWidget {

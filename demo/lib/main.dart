@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'src/devices_list.dart';
+import 'src/home.dart';
 import 'src/login.dart';
 import 'src/toit_api.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +36,7 @@ class MyApp extends ConsumerWidget {
     if (toitApi == null) {
       page = LoginPage();
     } else {
-      page = DevicesPage(toitApi);
+      page = HomePage(toitApi);
     }
     return MaterialApp(
       title: 'Toit Demo',

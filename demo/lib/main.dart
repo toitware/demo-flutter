@@ -4,7 +4,9 @@
 
 import 'package:flutter/material.dart';
 import 'src/devices_list.dart';
+import 'src/login.dart';
 import 'src/toit_api.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// An API token created on https://console.toit.io/project/apikeys or
 /// with
@@ -14,27 +16,30 @@ import 'src/toit_api.dart';
 /// ```
 const API_TOKEN = "";
 
-void main() {
-  if (API_TOKEN == "") {
-    runApp(MaterialApp(
-        home: const Text("Please update the value of the API_TOKEN.")));
-    return;
-  }
-  var toitApi = ToitApi(token: API_TOKEN);
-  runApp(MyApp(toitApi));
+Future<void> main() async {
+  var overrides = [
+    if (API_TOKEN != "")
+      toitApiProvider
+          .overrideWithValue(StateController(ToitApi(token: API_TOKEN)))
+  ];
+  runApp(ProviderScope(overrides: overrides, child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
-  final ToitApi _toitApi;
-
-  MyApp(this._toitApi);
-
+class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var toitApi = ref.watch(toitApiProvider).state;
+
+    Widget page;
+    if (toitApi == null) {
+      page = LoginPage();
+    } else {
+      page = DevicesPage(toitApi);
+    }
     return MaterialApp(
       title: 'Toit Demo',
-      home: DevicesPage(_toitApi),
+      home: page,
     );
   }
 }

@@ -31,6 +31,8 @@ dependencies:
   toit_api: ^1.0.0
   grpc: ^3.0.2
 
+  shared_preferences: ^2.0.8
+  flutter_riverpod: ^1.0.0-dev.11
 
 dev_dependencies:
   flutter_test:

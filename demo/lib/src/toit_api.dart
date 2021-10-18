@@ -4,10 +4,11 @@
 
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc/grpc.dart';
 import 'package:toit_api/toit/api/app.pbgrpc.dart' show AppServiceClient;
 import 'package:toit_api/toit/api/auth.pbgrpc.dart'
-    show AuthClient, LoginRequest;
+    show AuthClient, LoginRequest, RefreshRequest;
 import 'package:toit_api/toit/api/data.pbgrpc.dart' show DataServiceClient;
 import 'package:toit_api/toit/api/device.pbgrpc.dart'
     show Device, DeviceServiceClient, ListDevicesRequest;
@@ -26,6 +27,11 @@ import 'package:toit_api/toit/api/simulator.pbgrpc.dart'
 import 'package:toit_api/toit/api/pubsub/subscribe.pbgrpc.dart'
     show SubscribeClient;
 import 'package:toit_api/toit/api/user.pbgrpc.dart' show UserClient;
+
+
+ToitApi? toitApi_;
+final toitApiProvider = StateProvider<ToitApi?>((ref) => toitApi_);
+
 
 class ToitUnauthenticatedException implements Exception {
   const ToitUnauthenticatedException();

@@ -64,7 +64,6 @@ void main() {
           }
         }
 
-        // Verify that our counter starts at 0.
         expect(find.text('device1'), findsOneWidget);
         expect(find.text('device2'), findsOneWidget);
         expect(find.text('1'), findsNothing);

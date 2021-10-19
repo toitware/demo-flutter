@@ -52,6 +52,8 @@ void main() {
         // Build our app and trigger a frame.
         await tester.pumpWidget(app);
 
+        await tester.tap(find.text('List Devices'));
+
         var stopWatch = Stopwatch()..start();
         // Give up to 1 second to get the asynchronous data.
         while (stopWatch.elapsedMilliseconds < 1000) {

@@ -32,6 +32,7 @@ class FakeDeviceService extends UnimplementedDeviceService {
 void main() {
   group('Devices', () {
     late Server server;
+    late ToitApi toitApi;
 
     setUp(() async {
       server = await startServer([FakeDeviceService()]);
@@ -39,7 +40,7 @@ void main() {
           const ChannelOptions(credentials: ChannelCredentials.insecure());
       var channel =
           ClientChannel('localhost', port: server.port!, options: options);
-      toitApi_ = ToitApi.withChannel(channel);
+      toitApi = ToitApi.withChannel(channel);
     });
 
     tearDown(() {
@@ -48,7 +49,9 @@ void main() {
 
     testWidgets('Toit shows devices', (WidgetTester tester) async {
       await tester.runAsync(() async {
-        var app = ProviderScope(child: MyApp());
+        var app = ProviderScope(overrides: [
+          toitApiProvider.overrideWithValue(StateController(toitApi)),
+        ], child: MyApp());
         // Build our app and trigger a frame.
         await tester.pumpWidget(app);
 

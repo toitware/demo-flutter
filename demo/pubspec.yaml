@@ -33,6 +33,7 @@ dependencies:
 
   shared_preferences: ^2.0.8
   flutter_riverpod: ^1.0.0-dev.11
+  uuid: ^3.0.5
 
 dev_dependencies:
   flutter_test:

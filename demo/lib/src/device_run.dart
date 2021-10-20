@@ -19,10 +19,10 @@ class RunPage extends ConsumerStatefulWidget {
   RunPage(this._toitApi, {Key? key}) : super(key: key);
 
   @override
-  _RunState createState() => _RunState();
+  _RunPageState createState() => _RunPageState();
 }
 
-class _RunState extends ConsumerState<RunPage> {
+class _RunPageState extends ConsumerState<RunPage> {
   String? _text = "";
 
   Future<void> _sendProgram(String selectedDevice) async {

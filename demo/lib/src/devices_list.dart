@@ -2,22 +2,11 @@
 // Use of this source code is governed by a Zero-Clause BSD license that can
 // be found in the LICENSE file.
 
+import 'package:uuid/uuid.dart';
+
 import 'toit_api.dart';
 import 'package:flutter/material.dart';
 import 'package:toit_api/toit/api/device.pbgrpc.dart' as toit;
-
-extension ToitDevice on toit.Device {
-  /// Converts the 128 bit UUID into a nicely formatted string.
-  String idString() {
-    var bytes = this.id;
-    var hex = bytes.map((b) => b.toRadixString(16).padLeft(2, "0")).join();
-    return "${hex.substring(0, 8)}-"
-        "${hex.substring(8, 12)}-"
-        "${hex.substring(12, 16)}-"
-        "${hex.substring(16, 20)}-"
-        "${hex.substring(20)}";
-  }
-}
 
 /// Widget to display the most important properties of a device.
 ///
@@ -25,14 +14,14 @@ extension ToitDevice on toit.Device {
 class Device extends StatelessWidget {
   final toit.Device _device;
 
-  Device(this._device) : super(key: ValueKey(_device.idString()));
+  Device(this._device) : super(key: ValueKey(Uuid.unparse(_device.id)));
 
   @override
   Widget build(BuildContext context) {
     return Center(
         child: Column(children: [
       Text(_device.config.name),
-      Text(_device.idString()),
+      Text(Uuid.unparse(_device.id)),
     ]));
   }
 }

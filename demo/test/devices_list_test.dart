@@ -55,6 +55,8 @@ void main() {
         // Build our app and trigger a frame.
         await tester.pumpWidget(app);
 
+        await tester.tap(find.text('List Devices'));
+
         var stopWatch = Stopwatch()..start();
         // Give up to 1 second to get the asynchronous data.
         while (stopWatch.elapsedMilliseconds < 1000) {
@@ -65,7 +67,6 @@ void main() {
           }
         }
 
-        // Verify that our counter starts at 0.
         expect(find.text('device1'), findsOneWidget);
         expect(find.text('device2'), findsOneWidget);
         expect(find.text('1'), findsNothing);

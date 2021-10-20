@@ -48,19 +48,19 @@ class _DeviceSelectorState extends ConsumerState<DeviceSelector> {
       return DropdownMenuItem(
         enabled: isConnected,
         value: uuid,
-        child: Row(children: [
-          Text(dev.config.name,
-              style: isConnected
-                  ? null
-                  : TextStyle(color: Theme.of(context).unselectedWidgetColor)),
-          // TODO(florian): When enabling the spacer it's not possible to
-          //   select any item anymore.
-          // Spacer(),
-          Text(
-            '⬤',
-            style: TextStyle(color: isConnected ? Colors.green : Colors.red),
-          )
-        ]),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(dev.config.name,
+                style: isConnected
+                    ? null
+                    : TextStyle(color: Theme.of(context).unselectedWidgetColor)),
+            Text(
+              '⬤',
+              style: TextStyle(color: isConnected ? Colors.green : Colors.red),
+            )
+          ],
+        ),
       );
     }).toList();
     if (!found) {

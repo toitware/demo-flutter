@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 
 import 'devices_list.dart';
+import 'device_run.dart';
 import 'toit_api.dart';
 
 /// Widget to show all available demos.
@@ -32,6 +33,11 @@ class HomePage extends StatelessWidget {
                     title: Text('List Devices'),
                     subtitle: Text('Demonstrates the use of the Toit Server API'),
                     onTap: () => push((toitApi) => DevicesPage(toitApi)))),
+            Card(
+                child: ListTile(
+                    title: Text('Run'),
+                    subtitle: Text('Runs a program on a device'),
+                    onTap: () => push((toitApi) => RunPage(toitApi)))),
           ],
         ));
   }

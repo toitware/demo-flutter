@@ -18,10 +18,10 @@ class RunPage extends StatefulWidget {
   RunPage(this._toitApi, {Key? key}) : super(key: key);
 
   @override
-  _RunState createState() => _RunState();
+  _RunPageState createState() => _RunPageState();
 }
 
-class _RunState extends State<RunPage> {
+class _RunPageState extends State<RunPage> {
   String _text = "";
 
   Future<void> _sendProgram() async {

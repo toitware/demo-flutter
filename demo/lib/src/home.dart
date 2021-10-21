@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'devices_list.dart';
 import 'device_run.dart';
 import 'toit_api.dart';
+import 'pubsub_send.dart';
 
 /// Widget to show all available demos.
 class HomePage extends StatelessWidget {
@@ -38,6 +39,11 @@ class HomePage extends StatelessWidget {
                     title: Text('Run'),
                     subtitle: Text('Runs a program on a device'),
                     onTap: () => push((toitApi) => RunPage(toitApi)))),
+            Card(
+                child: ListTile(
+                    title: Text('Pubsub Send'),
+                    subtitle: Text('Sends a pubsub event to a device'),
+                    onTap: () => push((toitApi) => PubsubSendPage(toitApi)))),
           ],
         ));
   }

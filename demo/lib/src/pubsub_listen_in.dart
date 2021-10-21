@@ -6,15 +6,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:toit_api/toit/api/pubsub/publish.pbgrpc.dart' as toit;
 import 'package:toit_api/toit/api/pubsub/subscribe.pbgrpc.dart' as toit;
-import 'package:toit_api/toit/api/program.pbgrpc.dart' as toit;
 
-import 'device_select.dart';
+import 'run_widget.dart';
 import 'toit_api.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:pretty_gauge/pretty_gauge.dart';
 
 class PubsubListenInPage extends ConsumerStatefulWidget {
@@ -42,31 +39,9 @@ main:
 """;
 
 class _PubsubListenInState extends ConsumerState<PubsubListenInPage> {
-  String? _text = "";
   late toit.Subscription _toitSubscription;
   double _currentValue = 0.0;
-  List<StreamSubscription> _streamSubscriptions = [];
-
-  Future<void> _sendProgram(String selectedDevice) async {
-    var sources = toit.ProgramSource_Files(entryFilename: 'main.toit', files: {
-      'main.toit': utf8.encode(clientCode),
-    });
-    setState(() {
-      _text = null;
-    });
-    var request = toit.DeviceRunRequest(
-      deviceId: Uuid.parse(selectedDevice),
-      source: toit.ProgramSource(files: sources),
-    );
-    var response = widget._toitApi.programServiceStub.deviceRun(request);
-    _streamSubscriptions.add(response.listen((responseLine) {
-      var line = utf8
-          .decode(responseLine.hasErr() ? responseLine.err : responseLine.out);
-      setState(() {
-        _text = (_text ?? "") + line;
-      });
-    }));
-  }
+  StreamSubscription? _streamSubscription;
 
   Future<void> _startListening() async {
     // Create a fresh subscription.
@@ -76,12 +51,12 @@ class _PubsubListenInState extends ConsumerState<PubsubListenInPage> {
 
     var envelopes =
         widget._toitApi.stream(_toitSubscription, autoAcknowledge: true);
-    _streamSubscriptions.add(envelopes.listen((envelope) {
+    _streamSubscription = envelopes.listen((envelope) {
       setState(() {
         var value = double.parse(utf8.decode(envelope.message.data));
         _currentValue = value;
       });
-    }));
+    });
   }
 
   @override
@@ -96,27 +71,15 @@ class _PubsubListenInState extends ConsumerState<PubsubListenInPage> {
 
   @override
   Widget build(BuildContext context) {
-    var selectedDevice =
-        ref.watch(selectedDeviceProvider("pubsub-listen")).state;
     return Scaffold(
         appBar: AppBar(
           title: Text('Toit Demo PubSub Send'),
         ),
         body: Column(children: [
-          Card(
-              child: Row(children: [
-            Spacer(),
-            Text(clientCode, style: GoogleFonts.robotoMono()),
-            Spacer()
-          ])),
-          DeviceSelector("pubsub-listen", widget._toitApi),
-          TextButton(
-              onPressed: selectedDevice == null
-                  ? null
-                  : () {
-                      _sendProgram(selectedDevice);
-                    },
-              child: Text('Run Client')),
+          RunWidget(
+            code: clientCode,
+            selectedDeviceId: "pubsub-listen",
+          ),
           Expanded(
               child: PrettyGauge(
             currentValue: _currentValue,
@@ -127,17 +90,14 @@ class _PubsubListenInState extends ConsumerState<PubsubListenInPage> {
             ],
             gaugeSize: 100,
           )),
-          _text == null ? CircularProgressIndicator() : Text(_text!),
         ]));
   }
 
   @override
   void dispose() {
     super.dispose();
-    _streamSubscriptions.forEach((sub) {
-      sub.cancel();
-    });
-    _streamSubscriptions.clear();
+    _streamSubscription?.cancel();
+    _streamSubscription = null;
     var request =
         toit.DeleteSubscriptionRequest(subscription: _toitSubscription);
     widget._toitApi.subscribeStub.deleteSubscription(request);

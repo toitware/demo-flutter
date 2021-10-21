@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
                 child: ListTile(
                     title: Text('Run'),
                     subtitle: Text('Runs a program on a device'),
-                    onTap: () => push((toitApi) => RunPage(toitApi)))),
+                    onTap: () => push((_) => RunPage()))),
             Card(
                 child: ListTile(
                     title: Text('Pubsub Send'),

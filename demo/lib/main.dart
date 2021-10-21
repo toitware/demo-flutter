@@ -3,7 +3,6 @@
 // be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'src/devices_list.dart';
 import 'src/home.dart';
 import 'src/login.dart';
 import 'src/toit_api.dart';

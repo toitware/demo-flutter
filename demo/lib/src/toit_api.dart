@@ -25,13 +25,12 @@ import 'package:toit_api/toit/api/sdk.pbgrpc.dart' show SDKServiceClient;
 import 'package:toit_api/toit/api/simulator.pbgrpc.dart'
     show SimulatorServiceClient;
 import 'package:toit_api/toit/api/pubsub/subscribe.pbgrpc.dart'
-    show SubscribeClient;
+    show AcknowledgeRequest, StreamRequest, SubscribeClient, Subscription;
 import 'package:toit_api/toit/api/user.pbgrpc.dart' show UserClient;
-
+import 'package:toit_api/toit/model/pubsub/message.pb.dart';
 
 ToitApi? toitApi_;
 final toitApiProvider = StateProvider<ToitApi?>((ref) => toitApi_);
-
 
 class ToitUnauthenticatedException implements Exception {
   const ToitUnauthenticatedException();
@@ -121,5 +120,73 @@ class ToitApi {
     var tokenBytes = response.accessToken;
     var token = utf8.decode(tokenBytes);
     _options = _optionsFromToken(token);
+  }
+
+  static const Duration _initialBackoff = Duration(milliseconds: 100);
+
+  /// Streams data from a [subscription].
+  ///
+  /// If [autoAcknowledge] is true, automatically acknowledges incoming
+  /// messages.
+  ///
+  /// Automatically reconnects to the server when the connection is cut.
+  Stream<Envelope> stream(Subscription subscription,
+      {autoAcknowledge: false}) async* {
+    var subStub = SubscribeClient(_channel, options: _options);
+    while (true) {
+      var watch = Stopwatch()..start();
+      var backoffTime = _initialBackoff;
+      var stream = subStub.stream(StreamRequest(subscription: subscription));
+      try {
+        await for (var event in stream) {
+          var toAcknowledge = <List<int>>[];
+          for (var envelope in event.messages) {
+            if (autoAcknowledge) toAcknowledge.add(envelope.id);
+            yield envelope;
+          }
+          if (toAcknowledge.isNotEmpty) {
+            await subStub.acknowledge(AcknowledgeRequest(
+                subscription: subscription, envelopeIds: toAcknowledge));
+          }
+        }
+        // Done.
+        return;
+      } on GrpcError catch (e) {
+        switch (e.code) {
+          case StatusCode.ok:
+          case StatusCode.unknown:
+          case StatusCode.deadlineExceeded:
+          case StatusCode.unavailable:
+            // Retry with exponential backoff.
+            if (watch.elapsedMilliseconds < 100) {
+              // We assume that connection failed immediately.
+              // Try again a bit later with increasing back-off.
+              await Future.delayed(backoffTime);
+              if (backoffTime < Duration(seconds: 15)) backoffTime *= 2;
+            } else {
+              backoffTime = _initialBackoff;
+            }
+            // Try again.
+            continue;
+
+          case StatusCode.cancelled:
+          case StatusCode.invalidArgument:
+          case StatusCode.notFound:
+          case StatusCode.alreadyExists:
+          case StatusCode.permissionDenied:
+          case StatusCode
+              .resourceExhausted: // Could also be acceptable for retry.case
+          case StatusCode.failedPrecondition:
+          case StatusCode.aborted:
+          case StatusCode.outOfRange:
+          case StatusCode.unimplemented:
+          case StatusCode.internal:
+          case StatusCode.dataLoss:
+          case StatusCode.unauthenticated:
+          default:
+            rethrow;
+        }
+      }
+    }
   }
 }

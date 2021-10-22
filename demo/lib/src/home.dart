@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 
+import 'device_log.dart';
 import 'devices_list.dart';
 import 'device_run.dart';
 import 'pubsub_listen_heartbeat.dart';
@@ -37,6 +38,11 @@ class HomePage extends StatelessWidget {
                     subtitle:
                         Text('Demonstrates the use of the Toit Server API'),
                     onTap: () => push((toitApi) => DevicesPage(toitApi)))),
+            Card(
+                child: ListTile(
+                    title: Text('Log'),
+                    subtitle: Text('Shows the logs of a device'),
+                    onTap: () => push((toitApi) => LogPage(toitApi)))),
             Card(
                 child: ListTile(
                     title: Text('Run'),

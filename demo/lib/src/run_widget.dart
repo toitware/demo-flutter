@@ -59,11 +59,15 @@ class _RunWidgetState extends ConsumerState<RunWidget> {
         ref.watch(selectedDeviceProvider(widget._selectedDeviceId)).state;
     return Column(children: [
       Card(
-          child: Row(children: [
-        Spacer(),
-        Text(widget._code, style: GoogleFonts.robotoMono()),
-        Spacer()
-      ])),
+        child: Row(children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: 200),
+            child: SingleChildScrollView(
+                child: Text(widget._code, style: GoogleFonts.robotoMono())),
+          ),
+          Spacer(),
+        ]),
+      ),
       DeviceSelector(widget._selectedDeviceId, toitApi),
       TextButton(
           onPressed: selectedDevice == null

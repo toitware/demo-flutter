@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'devices_list.dart';
 import 'device_run.dart';
+import 'pubsub_listen_heartbeat.dart';
 import 'pubsub_listen_in.dart';
 import 'toit_api.dart';
 import 'pubsub_send.dart';
@@ -52,6 +53,12 @@ class HomePage extends StatelessWidget {
                     subtitle: Text('Listens to messages on a topic'),
                     onTap: () =>
                         push((toitApi) => PubsubListenInPage(toitApi)))),
+            Card(
+                child: ListTile(
+                    title: Text('Pubsub Listen Heartbeat'),
+                    subtitle: Text('Requests the device to stream data'),
+                    onTap: () =>
+                        push((toitApi) => PubsubListenHeartbeatPage(toitApi)))),
           ],
         ));
   }

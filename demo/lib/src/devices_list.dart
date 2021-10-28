@@ -2,6 +2,7 @@
 // Use of this source code is governed by a Zero-Clause BSD license that can
 // be found in the LICENSE file.
 
+import 'package:flutter/widgets.dart';
 import 'package:uuid/uuid.dart';
 
 import 'toit_api.dart';
@@ -18,9 +19,20 @@ class Device extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Column(children: [
-      Text(_device.config.name),
+    var isConnected = _device.status.connected;
+    var isWell = !_device.status.health.connectivity.checkins.last.missed;
+    return Card(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        Text(_device.config.name + (_device.isSimulator ? " 💻"  : ""),
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        Spacer(),
+        isWell
+            ? Icon(Icons.sentiment_satisfied_alt, color: Colors.green)
+            : Icon(Icons.sentiment_dissatisfied, color: Colors.red),
+        Text('⬤',
+            style: TextStyle(color: isConnected ? Colors.green : Colors.red))
+      ]),
       Text(Uuid.unparse(_device.id)),
     ]));
   }

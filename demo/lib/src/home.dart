@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'devices_list.dart';
 import 'device_run.dart';
+import 'pubsub_listen_in.dart';
 import 'toit_api.dart';
 import 'pubsub_send.dart';
 
@@ -32,7 +33,8 @@ class HomePage extends StatelessWidget {
             Card(
                 child: ListTile(
                     title: Text('List Devices'),
-                    subtitle: Text('Demonstrates the use of the Toit Server API'),
+                    subtitle:
+                        Text('Demonstrates the use of the Toit Server API'),
                     onTap: () => push((toitApi) => DevicesPage(toitApi)))),
             Card(
                 child: ListTile(
@@ -44,6 +46,12 @@ class HomePage extends StatelessWidget {
                     title: Text('Pubsub Send'),
                     subtitle: Text('Sends a pubsub event to a device'),
                     onTap: () => push((toitApi) => PubsubSendPage(toitApi)))),
+            Card(
+                child: ListTile(
+                    title: Text('Pubsub Listen'),
+                    subtitle: Text('Listens to messages on a topic'),
+                    onTap: () =>
+                        push((toitApi) => PubsubListenInPage(toitApi)))),
           ],
         ));
   }

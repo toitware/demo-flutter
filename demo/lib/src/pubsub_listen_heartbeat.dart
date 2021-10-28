@@ -107,8 +107,8 @@ class _PubsubListenHeartbeatState
     setState(() {
       _heartbeatSubscription =
           Stream.periodic(Duration(seconds: 20)).listen((_) {
-            _sendHeartbeat();
-          });
+        _sendHeartbeat();
+      });
     });
     _sendHeartbeat();
   }
@@ -123,10 +123,10 @@ class _PubsubListenHeartbeatState
     await widget._toitApi.publishStub.publish(request);
   }
 
-  Future<void> _sendStop({bool shouldSetState=true}) async {
+  Future<void> _sendStop() async {
     assert(_heartbeatSubscription != null);
     _heartbeatSubscription!.cancel();
-    if (shouldSetState) {
+    if (mounted) {
       setState(() {
         _heartbeatSubscription = null;
       });
@@ -166,7 +166,7 @@ class _PubsubListenHeartbeatState
           Row(children: [
             TextButton(
                 onPressed:
-                _heartbeatSubscription == null ? _startHeartbeat : null,
+                    _heartbeatSubscription == null ? _startHeartbeat : null,
                 child: Text('Start')),
             TextButton(
                 onPressed: _heartbeatSubscription == null ? null : _sendStop,
@@ -188,9 +188,7 @@ class _PubsubListenHeartbeatState
   @override
   void dispose() {
     super.dispose();
-    if (_heartbeatSubscription != null) {
-      _sendStop(shouldSetState: false);
-    }
+    if (_heartbeatSubscription != null) _sendStop();
     // Linter wants a cancel in the dispose.
     _heartbeatSubscription?.cancel();
     _streamSubscription?.cancel();

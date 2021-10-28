@@ -31,6 +31,9 @@ class _LogPageState extends ConsumerState<LogPage> {
       _logs = null;
     });
     var since = DateTime.now().subtract(Duration(hours: 3));
+    // The log request needs a device ID.
+    // We furthermore provide it with a timestamp so that the log is not too
+    // long.
     var request = ReadDeviceLogsRequest(
       deviceId: Uuid.parse(device),
       ts: Timestamp(seconds: Int64(since.millisecondsSinceEpoch ~/ 1000)),
@@ -54,7 +57,7 @@ class _LogPageState extends ConsumerState<LogPage> {
     var selectedDevice = ref.watch(selectedDeviceProvider("log")).state;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Toit Log Demo'),
+        title: Text('Device Log'),
       ),
       body: Column(children: [
         DeviceSelector("log", widget._toitApi),

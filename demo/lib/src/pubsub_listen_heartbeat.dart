@@ -15,6 +15,15 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:pretty_gauge/pretty_gauge.dart';
 
+/// A demo page to show a pubsub stream with limited lifetime.
+///
+/// The Flutter application sends a signal to the device, which then
+/// continuously produces data, until a stop signal is sent.
+///
+/// In case the Flutter application dies (or is killed) without sending a
+/// stop signal, the device also requires a regular heartbeat signal. If the
+/// device doesn't receive any heartbeat for a specific time, it assumes that
+/// the Flutter app silently disappeared and stops producing new data.
 class PubsubListenHeartbeatPage extends ConsumerStatefulWidget {
   final ToitApi _toitApi;
 
@@ -28,6 +37,39 @@ const pubsubListenDataTopic = "cloud:flutter_demo/listen_data";
 const pubsubListenHeartbeatTopic = "cloud:flutter_demo/listen_heartbeat";
 const pubsubListenStopTopic = "cloud:flutter_demo/listen_stop";
 
+/// Code that is executed on the device.
+///
+/// For the purpose of this demo, the Flutter application sends the code
+/// dynamically. Normally, this application would be installed beforehand, and
+/// the Flutter application would simply send the heartbeat message to start
+/// receiving data.
+///
+/// The app uses three pubsub topics:
+/// - the heartbeat topic, on which it listens for a signal that the device
+///   should produce data. If the device doesn't receive a heartbeat for
+///   30 seconds, it assumes that the receiver died and stops sending data.
+/// - the stop topic: lets the application know that it should stop sending
+///   data immediately.
+/// - the data topic, on which it sends data.
+///
+/// The app could just run all the time, or it could be triggered by the
+/// heartbeat message (in the `app.yaml` file):
+/// ```
+/// pubsub:
+///   subscriptions:
+///     - "cloud:flutter_demo/listen_heartbeat"
+/// ```
+///
+/// The Toit program should furthermore be enhanced to take into account the
+/// creation time of the pubsub message. The current code assumes that the
+/// heartbeat message was received without noticeable delay. If, however, the
+/// device was offline, it would receive a stale heartbeat message. In that
+/// case it should probably just ignore the message.
+///
+/// The device does not differentiate between different Flutter applications
+/// requesting data. This means that multiple phones could send heartbeats
+/// and would listen to the same data. If individual listeners should receive
+/// a concrete set of data, see the RPC example.
 const clientCode = """
 import pubsub
 
@@ -88,6 +130,13 @@ class _PubsubListenHeartbeatState
 
   Future<void> _startListening() async {
     // Create a fresh subscription.
+    // The fresh subscription is destroyed in the [dispose] function below.
+    // If the [dispose] is not called (the app is killed, battery died, ...)
+    // we end up leaving a stale subscription that the user needs to clean up
+    // by themselves. There is, unfortunately, no good way to avoid this.
+    // One could include a timestamp in the subscription name and
+    // remove stale subscriptions the next time the Flutter app runs, but that's
+    // not always working either.
     var request =
         toit.CreateSubscriptionRequest(subscription: _toitSubscription);
     await widget._toitApi.subscribeStub.createSubscription(request);
@@ -102,6 +151,9 @@ class _PubsubListenHeartbeatState
     });
   }
 
+  /// Starts sending periodic heartbeat messages.
+  ///
+  /// The device must have an app installed that reacts to the heartbeat.
   void _startHeartbeat() {
     assert(_heartbeatSubscription == null);
     setState(() {
@@ -113,16 +165,21 @@ class _PubsubListenHeartbeatState
     _sendHeartbeat();
   }
 
+  /// Sends a heartbeat to the device.
   Future<void> _sendHeartbeat() async {
     var request = PublishRequest(
         publisherName: "Flutter demo",
         // TODO(florian): figure out why we can't send to the specific client.
         // By using '@selectedDevice' we send the message only to this device.
         topic: pubsubListenHeartbeatTopic, // @$selectedDevice",
-        data: [[]]);
+        data: const [[]]);
     await widget._toitApi.publishStub.publish(request);
   }
 
+  /// Sends a stop message to the device.
+  ///
+  /// This method can also be used in the [dispose] method below. As such it
+  /// allows to not update the state.
   Future<void> _sendStop() async {
     assert(_heartbeatSubscription != null);
     _heartbeatSubscription!.cancel();
@@ -138,14 +195,14 @@ class _PubsubListenHeartbeatState
         // TODO(florian): figure out why we can't send to the specific client.
         // By using '@selectedDevice' we send the message only to this device.
         topic: pubsubListenStopTopic, // @$selectedDevice",
-        data: [[]]);
+        data: const [[]]);
     await widget._toitApi.publishStub.publish(request);
   }
 
   @override
   void initState() {
     super.initState();
-    // Create a fresh subscription.
+    // Create a fresh unique subscription name.
     var name = "demo-pubsub-listen-heartbeat-${Uuid().v1()}";
     _toitSubscription =
         toit.Subscription(name: name, topic: pubsubListenDataTopic);
@@ -156,12 +213,12 @@ class _PubsubListenHeartbeatState
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Toit Demo PubSub Send'),
+          title: Text('Pubsub Heartbeat Listen'),
         ),
         body: Column(children: [
           RunWidget(
             code: clientCode,
-            selectedDeviceId: "pubsub-listen",
+            selectedDeviceId: "pubsub-listen-heartbeat",
           ),
           Row(children: [
             TextButton(
@@ -189,8 +246,7 @@ class _PubsubListenHeartbeatState
   void dispose() {
     super.dispose();
     if (_heartbeatSubscription != null) _sendStop();
-    // Linter wants a cancel in the dispose.
-    _heartbeatSubscription?.cancel();
+    _heartbeatSubscription?.cancel();  // Linter wants a cancel in the dispose.
     _streamSubscription?.cancel();
     _streamSubscription = null;
     var request =

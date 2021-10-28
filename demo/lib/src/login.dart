@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 const _usernameKey = 'username';
 const _passwordKey = 'password';
 
+/// A login page for the Toit server.
 class LoginPage extends ConsumerStatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -30,11 +31,17 @@ class _LoginState extends ConsumerState<LoginPage> {
     try {
       var username = _usernameController.value.text;
       var password = _passwordController.value.text;
+      // The [ToitApi.login] method does a grpc request to authenticate
+      // the user. The `toitApi` instance remembers the authentication token,
+      // for future calls to the server.
       await toitApi.login(username: username, password: password);
       // Successful login.
       var prefs = await _prefs;
+      // Remember the username and password for future uses of the application.
       await prefs.setString(_usernameKey, username);
       await prefs.setString(_passwordKey, password);
+      // Update the provider's state, so that users of the provider are
+      // notified and can make use of the authenticated toitApi.
       ref.read(toitApiProvider).state = toitApi;
     } catch (e) {
       setState(() {
@@ -74,7 +81,7 @@ class _LoginState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Toit Demo Login'),
+          title: Text('Toit Login'),
         ),
         body: AutofillGroup(
             child: Column(children: [

@@ -50,15 +50,13 @@ main:
     send_data response_topic id
 """;
 
-class _PubsubRpcState extends ConsumerState<PubsubRpcPage> {
-  List<double>? _values;
-  late toit.Subscription _toitSubscription;
-  StreamSubscription? _streamSubscription;
-  var _rpcCounter = 0;
-  Map<int, void Function(dynamic)> _callbacks = {};
-  int _waitingForResponses = 0;
+class ValuesChart extends StatelessWidget {
+  final List<double>? _values;
 
-  Widget _lineChart() {
+  ValuesChart(this._values, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     List<Color> gradientColors = [
       const Color(0xff23b6e6),
       const Color(0xff02d39a),
@@ -76,6 +74,15 @@ class _PubsubRpcState extends ConsumerState<PubsubRpcPage> {
     return LineChart(LineChartData(
         minX: -1, maxX: 10, minY: 0, maxY: 40, lineBarsData: [data]));
   }
+}
+
+class _PubsubRpcState extends ConsumerState<PubsubRpcPage> {
+  List<double>? _values;
+  late toit.Subscription _toitSubscription;
+  StreamSubscription? _streamSubscription;
+  var _rpcCounter = 0;
+  Map<int, void Function(dynamic)> _callbacks = {};
+  int _waitingForResponses = 0;
 
   Future<void> _startListening() async {
     // Create a fresh subscription.
@@ -86,14 +93,12 @@ class _PubsubRpcState extends ConsumerState<PubsubRpcPage> {
     var envelopes =
         widget._toitApi.stream(_toitSubscription, autoAcknowledge: true);
     _streamSubscription = envelopes.listen((envelope) {
-      setState(() {
-        var response = json.decode(utf8.decode(envelope.message.data));
-        var id = response["id"];
-        var data = response["data"];
-        var callback = _callbacks[id];
-        _callbacks.remove(id);
-        callback!(data);
-      });
+      var response = json.decode(utf8.decode(envelope.message.data));
+      var id = response["id"];
+      var data = response["data"];
+      var callback = _callbacks[id]!;
+      _callbacks.remove(id);
+      callback(data);
     });
   }
 
@@ -166,7 +171,7 @@ class _PubsubRpcState extends ConsumerState<PubsubRpcPage> {
           ]),
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: 200),
-            child: _values == null ? null : _lineChart(),
+            child: _values == null ? null : ValuesChart(_values),
           ),
         ]));
   }

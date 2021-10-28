@@ -28,7 +28,6 @@ class _LoginState extends ConsumerState<LoginPage> {
     });
     var toitApi = ToitApi();
     try {
-      print("trying to log in");
       var username = _usernameController.value.text;
       var password = _passwordController.value.text;
       await toitApi.login(username: username, password: password);

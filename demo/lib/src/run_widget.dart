@@ -76,7 +76,11 @@ class _RunWidgetState extends ConsumerState<RunWidget> {
                   _sendProgram(toitApi, selectedDevice);
                 },
           child: Text('Run on device')),
-      _text == null ? CircularProgressIndicator() : Text(_text!),
+      ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 100),
+          child: SingleChildScrollView(
+            child: _text == null ? CircularProgressIndicator() : Text(_text!),
+          )),
     ]);
   }
 

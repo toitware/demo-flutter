@@ -9,6 +9,7 @@ import 'devices_list.dart';
 import 'device_run.dart';
 import 'pubsub_listen_heartbeat.dart';
 import 'pubsub_listen_in.dart';
+import 'pubsub_rpc.dart';
 import 'toit_api.dart';
 import 'pubsub_send.dart';
 
@@ -65,6 +66,11 @@ class HomePage extends StatelessWidget {
                     subtitle: Text('Requests the device to stream data'),
                     onTap: () =>
                         push((toitApi) => PubsubListenHeartbeatPage(toitApi)))),
+            Card(
+                child: ListTile(
+                    title: Text('Pubsub RPC'),
+                    subtitle: Text('Uses Pubsub to emulate RPC calls'),
+                    onTap: () => push((toitApi) => PubsubRpcPage(toitApi)))),
           ],
         ));
   }

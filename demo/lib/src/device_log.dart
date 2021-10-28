@@ -30,26 +30,22 @@ class _LogPageState extends ConsumerState<LogPage> {
     setState(() {
       _logs = null;
     });
-    var since = DateTime.now().add(-Duration(hours: 3));
+    var since = DateTime.now().subtract(Duration(hours: 3));
     var request = ReadDeviceLogsRequest(
       deviceId: Uuid.parse(device),
       ts: Timestamp(seconds: Int64(since.millisecondsSinceEpoch ~/ 1000)),
     );
-    try {
-      print("requesting");
-      var response = await toitApi.deviceServiceStub.readDeviceLogs(request);
-      print("Got response");
-      for (var log in response.logs) {
-        setState(() {
-          var created = DateTime.fromMillisecondsSinceEpoch(
-              log.created.seconds.toInt() * 1000);
-          created = created
-              .add(Duration(microseconds: log.created.nanos.toInt() ~/ 1000));
-          _logs = (_logs ?? "") + "$created - ${log.msg}\n";
-        });
-      }
-    } catch (e) {
-      print(e);
+    var response = await toitApi.deviceServiceStub.readDeviceLogs(request);
+    setState(() {
+      _logs = "";
+    });
+    for (var log in response.logs) {
+      var created = DateTime.fromMillisecondsSinceEpoch(
+              log.created.seconds.toInt() * 1000)
+          .add(Duration(microseconds: log.created.nanos.toInt() ~/ 1000));
+      setState(() {
+        _logs = "$_logs$created - ${log.msg}\n";
+      });
     }
   }
 

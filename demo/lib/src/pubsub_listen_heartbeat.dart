@@ -123,10 +123,10 @@ class _PubsubListenHeartbeatState
     await widget._toitApi.publishStub.publish(request);
   }
 
-  Future<void> _sendStop() async {
+  Future<void> _sendStop({bool disposing = false}) async {
     assert(_heartbeatSubscription != null);
     _heartbeatSubscription!.cancel();
-    if (mounted) {
+    if (!disposing) {
       setState(() {
         _heartbeatSubscription = null;
       });
@@ -188,7 +188,7 @@ class _PubsubListenHeartbeatState
   @override
   void dispose() {
     super.dispose();
-    if (_heartbeatSubscription != null) _sendStop();
+    if (_heartbeatSubscription != null) _sendStop(disposing: true);
     // Linter wants a cancel in the dispose.
     _heartbeatSubscription?.cancel();
     _streamSubscription?.cancel();

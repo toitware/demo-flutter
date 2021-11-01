@@ -127,6 +127,11 @@ class _PubsubListenHeartbeatState
   double _currentValue = 0.0;
   StreamSubscription? _streamSubscription;
   StreamSubscription? _heartbeatSubscription;
+  // Normally we should be able to use `mounted` as indication of
+  // whether we are allowed to call `setState`.
+  // However, we are hit by https://github.com/flutter/flutter/issues/25536.
+  // We are therefore keeping track of it ourselves.
+  bool _isDisposing = false;
 
   Future<void> _startListening() async {
     // Create a fresh subscription.
@@ -183,7 +188,7 @@ class _PubsubListenHeartbeatState
   Future<void> _sendStop() async {
     assert(_heartbeatSubscription != null);
     _heartbeatSubscription!.cancel();
-    if (mounted) {
+    if (!_isDisposing) {
       setState(() {
         _heartbeatSubscription = null;
       });
@@ -244,7 +249,7 @@ class _PubsubListenHeartbeatState
 
   @override
   void dispose() {
-    super.dispose();
+    _isDisposing = true;
     if (_heartbeatSubscription != null) _sendStop();
     _heartbeatSubscription?.cancel();  // Linter wants a cancel in the dispose.
     _streamSubscription?.cancel();
@@ -252,5 +257,6 @@ class _PubsubListenHeartbeatState
     var request =
         toit.DeleteSubscriptionRequest(subscription: _toitSubscription);
     widget._toitApi.subscribeStub.deleteSubscription(request);
+    super.dispose();
   }
 }

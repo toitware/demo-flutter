@@ -8,10 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc/grpc.dart';
 import 'package:toit_api/toit/api/app.pbgrpc.dart' show AppServiceClient;
 import 'package:toit_api/toit/api/auth.pbgrpc.dart'
-    show AuthClient, LoginRequest, RefreshRequest;
+    show AuthClient, LoginRequest;
 import 'package:toit_api/toit/api/data.pbgrpc.dart' show DataServiceClient;
-import 'package:toit_api/toit/api/device.pbgrpc.dart'
-    show Device, DeviceServiceClient, ListDevicesRequest;
+import 'package:toit_api/toit/api/device.pbgrpc.dart' show DeviceServiceClient;
 import 'package:toit_api/toit/api/doctor.pbgrpc.dart' show DoctorServiceClient;
 import 'package:toit_api/toit/api/hardware.pbgrpc.dart'
     show HardwareServiceClient;
@@ -30,6 +29,10 @@ import 'package:toit_api/toit/api/user.pbgrpc.dart' show UserClient;
 import 'package:toit_api/toit/model/pubsub/message.pb.dart';
 
 ToitApi? toitApi_;
+
+/// A Riverpod provider for the toit-api.
+/// The state of the provider is 'null' if no authenticated connection has
+/// been established yet.
 final toitApiProvider = StateProvider<ToitApi?>((ref) => toitApi_);
 
 class ToitUnauthenticatedException implements Exception {
@@ -69,10 +72,21 @@ class ToitApi {
     return CallOptions(metadata: {'Authorization': 'Bearer $token'});
   }
 
+  /// Creates a new ToitApi instance.
+  ///
+  /// If the [token] is 'null', then the api still needs to [login].
+  ///
+  /// If a [token] is given it is used to establish a channel to the Toit
+  /// servers. Note that the token is not validated in the constructor. If
+  /// it is invalid or empty, then a later call to the server will fail.
   ToitApi({String? token})
       : _channel = ClientChannel("api.toit.io"),
         _options = token == null ? null : _optionsFromToken(token);
 
+  /// Creates a new ToitApi instance with an established channel.
+  ///
+  /// This constructor is useful for testing, where the channel can be
+  /// redirected towards a local fake server.
   ToitApi.withChannel(this._channel) : _options = CallOptions();
 
   CallOptions _ensureOptions() {
@@ -117,6 +131,10 @@ class ToitApi {
     _options = null;
     var request = LoginRequest(username: username, password: password);
     var response = await authStub.login(request);
+    // The returned access token authenticates the user in future calls to the
+    // server.
+    // We could store the refresh token of the response, so that users don't
+    // need to log in every time the application is started.
     var tokenBytes = response.accessToken;
     var token = utf8.decode(tokenBytes);
     _options = _optionsFromToken(token);
@@ -129,7 +147,7 @@ class ToitApi {
   /// If [autoAcknowledge] is true, automatically acknowledges incoming
   /// messages.
   ///
-  /// Automatically reconnects to the server when the connection is cut.
+  /// Automatically reconnects to the server when the connection is lost.
   Stream<Envelope> stream(Subscription subscription,
       {autoAcknowledge: false}) async* {
     var subStub = SubscribeClient(_channel, options: _options);

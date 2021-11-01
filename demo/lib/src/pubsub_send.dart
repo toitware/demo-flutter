@@ -15,7 +15,9 @@ import 'package:toit_api/toit/api/program.pbgrpc.dart' as toit;
 import 'package:uuid/uuid.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Runs a small program on a device.
+/// Sends a pubsub notification to a program running on the device.
+///
+/// This can be used to trigger actions.
 class PubsubSendPage extends ConsumerStatefulWidget {
   final ToitApi _toitApi;
 
@@ -27,6 +29,14 @@ class PubsubSendPage extends ConsumerStatefulWidget {
 
 const pubsubSendTopic = "cloud:flutter_demo/to_device";
 
+/// Code that is executed on the device.
+///
+/// The application simply listens on the pubsub topic and extracts the
+/// payload as a string (printing it).
+///
+/// For the purpose of this demo, the Flutter application sends the code
+/// dynamically. Normally, this application would be installed beforehand, and
+/// the Flutter application would simply send the notification.
 const clientCode = """
 import pubsub
 
@@ -49,7 +59,7 @@ class _PubsubSendState extends ConsumerState<PubsubSendPage> {
         // By using '@selectedDevice' we send the message only to this device.
         topic: "$pubsubSendTopic", // @$selectedDevice",
         data: [utf8.encode("hello from flutter ${DateTime.now()}")]);
-    var response = await widget._toitApi.publishStub.publish(request);
+    await widget._toitApi.publishStub.publish(request);
   }
 
   @override
@@ -57,7 +67,7 @@ class _PubsubSendState extends ConsumerState<PubsubSendPage> {
     var selectedDevice = ref.watch(selectedDeviceProvider("pubsub-send")).state;
     return Scaffold(
         appBar: AppBar(
-          title: Text('Toit Demo PubSub Send'),
+          title: Text('Pubsub Send'),
         ),
         body: Column(children: [
           RunWidget(

@@ -17,6 +17,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 const API_TOKEN = "";
 
 Future<void> main() async {
+  // The 'MyApp' below opens the login screen if the 'toitApi' provider
+  // returns 'null'.
+  // If we have an API token, then we can override the value of the
+  // provider with one that uses the token.
+  // In that case, it is safe to remove the login page from the project.
+  // Note that the tests use a similar approach to avoid the login screen,
+  // and to provide a fake RPC service.
   var overrides = [
     if (API_TOKEN != "")
       toitApiProvider
@@ -26,9 +33,12 @@ Future<void> main() async {
 }
 
 class MyApp extends ConsumerWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // We are using Riverpod for state management.
+    // Other state management techniques would work as well. Fundamentally,
+    // we just keep track of whether we have an authenticated connection to
+    // the Toit server.
     var toitApi = ref.watch(toitApiProvider).state;
 
     Widget page;

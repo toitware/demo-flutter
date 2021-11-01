@@ -82,7 +82,7 @@ class _DevicesState extends State<DevicesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Toit Demo Home Page'),
+        title: Text('Device List'),
       ),
       body:
           // While waiting for the response from the server show a spinner.

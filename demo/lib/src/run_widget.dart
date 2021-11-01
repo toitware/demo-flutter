@@ -14,8 +14,14 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/// A widget to run code on one of the available devices.
+///
+/// The user of this widget provides a code string, and the family id, that
+/// can be used to get the device from the Riverpod provider.
 class RunWidget extends ConsumerStatefulWidget {
   final String _code;
+
+  /// The Riverpod family ID to select the provider for this run widget.
   final String _selectedDeviceId;
 
   RunWidget({required String code, required String selectedDeviceId, Key? key})
@@ -31,6 +37,14 @@ class _RunWidgetState extends ConsumerState<RunWidget> {
   String? _text = "";
   StreamSubscription? _subscription;
 
+  /// Sends a program to the chose device and executes it there.
+  ///
+  /// This API does *not* deploy the program, but simply runs it. The program
+  /// thus has some limitations:
+  /// - it can only run for a limited time.
+  /// - it won't start again if the device is rebooted.
+  ///
+  /// Once the program is running, collects the output of the program.
   Future<void> _sendProgram(ToitApi toitApi, String selectedDevice) async {
     var sources = toit.ProgramSource_Files(entryFilename: 'main.toit', files: {
       'main.toit': utf8.encode(widget._code),

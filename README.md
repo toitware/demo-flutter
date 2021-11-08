@@ -1,6 +1,6 @@
 # Toit Flutter Demo
 
-A project to showcase how [Flutter] and [Toit] can work together.
+A project showcasing how [Flutter] and [Toit] can work together.
 
 [Flutter]: https://flutter.dev
 [Toit]: https://toit.io

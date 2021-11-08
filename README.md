@@ -1,6 +1,7 @@
-# Toit Flutter Demo
+# Flutter Demo
 
-A project showcasing how [Flutter] and [Toit] can work together.
+A project showcasing how a [Flutter] app can talk to an embedded
+device using [Toit].
 
 [Flutter]: https://flutter.dev
 [Toit]: https://toit.io
@@ -8,9 +9,9 @@ A project showcasing how [Flutter] and [Toit] can work together.
 ![Available Demos](screenshots/home.png?raw=true)
 
 This project is intended to be used as starting point for Flutter
-applications that want to communicate with the Toit server. Just
-pick the functionality that is most similar to what you need, and
-remove the remaining pages.
+applications that want to communicate with embedded devices or the
+Toit server. Just pick the functionality that is most similar to what
+you need, and remove the remaining pages.
 
 ## Implementation Note
 The Toit APIs need access to the Internet.

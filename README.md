@@ -1,4 +1,4 @@
-# Flutter Demo
+# Demo of controlling IoT devices with Flutter
 
 A project showcasing how a [Flutter] app can talk to an embedded
 device using [Toit].
@@ -14,7 +14,7 @@ Toit server. Just pick the functionality that is most similar to what
 you need, and remove the remaining pages.
 
 ## Implementation Note
-The Toit APIs need access to the Internet.
+The Flutter app needs access to the Internet.
 The `android/app/src/main/AndroidManifest.xml` thus must include:
 
 ```

@@ -187,7 +187,7 @@ class _PubsubRpcState extends ConsumerState<PubsubRpcPage> {
 
   @override
   Widget build(BuildContext context) {
-    var selectedDevice = ref.watch(selectedDeviceProvider("pubsub-rpc")).state;
+    var selectedDevice = ref.watch(selectedDeviceProvider("pubsub-rpc"));
     return Scaffold(
         appBar: AppBar(
           title: Text('Pubsub RPC Demo'),

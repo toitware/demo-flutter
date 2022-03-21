@@ -56,7 +56,7 @@ class _DeviceSelectorState extends ConsumerState<DeviceSelector> {
   Widget _dropdown(BuildContext context, List<toit.Device> devices) {
     // Use the 'selectedDeviceProvider' to determine which device was selected
     // earlier.
-    var selectedId = ref.watch(selectedDeviceProvider(widget.id)).state;
+    var selectedId = ref.watch(selectedDeviceProvider(widget.id));
     var found = false;
     var items = devices.map((dev) {
       var isConnected = dev.status.connected;
@@ -99,7 +99,7 @@ class _DeviceSelectorState extends ConsumerState<DeviceSelector> {
       items: items,
       hint: Text("Select device"),
       onChanged: (newValue) {
-        ref.read(selectedDeviceProvider(widget.id)).state = newValue;
+        ref.read(selectedDeviceProvider(widget.id).notifier).state = newValue;
       },
     );
   }

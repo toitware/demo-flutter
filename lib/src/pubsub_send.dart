@@ -64,7 +64,7 @@ class _PubsubSendState extends ConsumerState<PubsubSendPage> {
 
   @override
   Widget build(BuildContext context) {
-    var selectedDevice = ref.watch(selectedDeviceProvider("pubsub-send")).state;
+    var selectedDevice = ref.watch(selectedDeviceProvider("pubsub-send"));
     return Scaffold(
         appBar: AppBar(
           title: Text('Pubsub Send'),

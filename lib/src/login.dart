@@ -42,7 +42,7 @@ class _LoginState extends ConsumerState<LoginPage> {
       await prefs.setString(_passwordKey, password);
       // Update the provider's state, so that users of the provider are
       // notified and can make use of the authenticated toitApi.
-      ref.read(toitApiProvider).state = toitApi;
+      ref.read(toitApiProvider.notifier).state = toitApi;
     } catch (e) {
       setState(() {
         _isAuthenticating = false;

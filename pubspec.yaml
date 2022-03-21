@@ -37,7 +37,7 @@ dependencies:
   google_fonts: ^2.1.0
   pretty_gauge: ^1.0.0
   fixnum: ^1.0.0
-  fl_chart: ^0.40.2
+  fl_chart: ^0.46.0
 
 dev_dependencies:
   flutter_test:

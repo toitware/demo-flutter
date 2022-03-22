@@ -68,9 +68,9 @@ class _RunWidgetState extends ConsumerState<RunWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var toitApi = ref.watch(toitApiProvider).state!;
+    var toitApi = ref.watch(toitApiProvider)!;
     var selectedDevice =
-        ref.watch(selectedDeviceProvider(widget._selectedDeviceId)).state;
+        ref.watch(selectedDeviceProvider(widget._selectedDeviceId));
     return Column(children: [
       Card(
         child: Row(children: [

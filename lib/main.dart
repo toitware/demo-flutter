@@ -39,7 +39,7 @@ class MyApp extends ConsumerWidget {
     // Other state management techniques would work as well. Fundamentally,
     // we just keep track of whether we have an authenticated connection to
     // the Toit server.
-    var toitApi = ref.watch(toitApiProvider).state;
+    var toitApi = ref.watch(toitApiProvider);
 
     Widget page;
     if (toitApi == null) {

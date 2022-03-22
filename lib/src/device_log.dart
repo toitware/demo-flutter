@@ -54,7 +54,7 @@ class _LogPageState extends ConsumerState<LogPage> {
 
   @override
   Widget build(BuildContext context) {
-    var selectedDevice = ref.watch(selectedDeviceProvider("log")).state;
+    var selectedDevice = ref.watch(selectedDeviceProvider("log"));
     return Scaffold(
       appBar: AppBar(
         title: Text('Device Log'),
